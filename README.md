@@ -17,10 +17,7 @@
 ├── data
 │   └── city.json            // 省市区联动数据
 ├── js
-<<<<<<< HEAD
 │   ├── jquery.min.js        // jquery依赖
-=======
->>>>>>> f22ee13ffad0972bb5c1a72458e386f54017e343
 │   └── scroll-select.js     // 滚动效果js
 ├── index.html               // 效果预览
 ├── README.md                // readme
