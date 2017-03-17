@@ -1,0 +1,9 @@
+@charset "UTF-8";
+@function rem($val){ @return ($val/75)+rem; }
+
+//通用样式
+@import '_common.scss';
+//主要样式
+@import '_scrollSelect.scss';
+//媒体查询[rem匹配]
+@import '_media.scss';
