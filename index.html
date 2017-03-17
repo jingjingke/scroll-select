@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>效果页面</title>
+		<link rel="stylesheet" href="css/style.css" />
+	</head>
+	<body>
+		<div class="warp">
+			<!-- 省市区 -->
+			<div class="form_list form_list1">
+				<label>省</label><input type="text" value="" class="select1" readonly="readonly"/>
+				<label>市</label><input type="text" value="" class="select1" readonly="readonly" />
+				<label>区</label><input type="text" value="" class="select1" readonly="readonly" />
+			</div>
+			<!-- 省市 -->
+			<div class="form_list form_list2">
+				<label>省</label><input type="text" value="" class="select2" readonly="readonly"/>
+				<label>市</label><input type="text" value="" class="select2" readonly="readonly" />
+			</div>
+			<!-- 日期 -->
+			<div class="form_list form_list3">
+				<label>入住日期</label>
+				<input type="text" class="input3" readonly="readonly" value="" />
+			</div>
+		</div>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/scroll-select.js"></script>
+		<script>
+			//省市区联动
+			$('.form_list1').on('click',function(){
+				$.getJSON("./data/city.json",function(result){
+				   scrollSelect.go({
+				   		data:result,
+				   		level:3,
+				   		elArr:'.select1',
+				   		type:'address'
+				   })
+				});
+			})
+			//省市联动
+			$('.form_list2').on('click',function(){
+				$.getJSON("./data/city.json",function(result){
+				   scrollSelect.go({
+				   		data:result,
+				   		level:2,
+				   		elArr:'.select2',
+				   		type:'address'
+				   })
+				});
+			})
+			//日期
+			$('.form_list3').on('click',function(){
+			   scrollSelect.go({
+			   		level:3,
+			   		elArr:'.input3',
+			   		type:'calendar'
+			   })
+			})
+		</script>
+	</body>
+</html>
