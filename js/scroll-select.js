@@ -118,7 +118,6 @@ var scrollSelect = {
 		
 		//绑定事件--离开
 		$(document).on(goTouchEnd,function(e){
-			e.preventDefault()
 			for(var i=0; i< _obj.level; i++){
 				if(_obj.flag[i]){
 					_obj.flag[i] = false;
