@@ -1,11 +1,24 @@
 var scrollSelect = {
 	//定义与初始值
-	_obj : {},         type:'',         data : {},       level: 0 ,      value:[],
-	tempIdx : [],      realIdx : [],    index : [],
-	dataObj : [],      dataArr : [],
-	warpList : [],     ulList : [],     liList : [],
-	height : 0,	       start : 0,       end : 0,
-	scroll : [],  top : [],        yAxis : [],
+	_obj : {},
+	type:'',
+	data : {},
+	level: 0 ,
+	value:[],
+	tempIdx : [],
+	realIdx : [],
+	index : [],
+	dataObj : [],
+	dataArr : [],
+	warpList : [],
+	ulList : [],
+	liList : [],
+	height : 0,
+	start : 0,
+	end : 0,
+	scroll : [],
+	top : [],
+	yAxis : [],
 	flag : [],
 	//主要方法
 	go : function(param){
@@ -20,20 +33,46 @@ var scrollSelect = {
 		if(param.type === 'address'){
 			//如果传递进来的是地址（type=address,必须传data）
 			 _obj.data = param.data;
-			 //从传递的el选择器中获取默认值
+			 //从传递的el选择器中遍历获取默认值
 			$(param.elArr).each(function(index){
 				_obj.value[index] = $(this).val();
 			});
 
 		}else if(param.type === 'calendar'){
-			$(param.elArr).each(function(index){
-				_obj.value[index] = $(this).val();
-			});
-			//如果传入了一个日期值：例2017-03-03
-			if(_obj.value.length == 1 && param.level != 0 && _obj.value[0] !== ''){
-				var matchArr = _obj.value[0].match(/[0-9]{1,4}/g);
-				 for(var i =0; i<matchArr.length; i++){
-					_obj.value[i] = parseInt(matchArr[i]);
+			//calendar只接收一个指定的input[如果有值的话为2017-03-24这种日期格式]
+			var myVal = $(param.elArr).val();
+			//如果level不为0，且传入的input值不为空
+			if( param.level != 0 && myVal !== ''){
+				//把日期的数字匹配出来存入_obj.value
+				_obj.value = myVal.match(/[0-9]{1,4}/g);
+			}else if(myVal === ''){
+				//如果input为空时，则使用当前日期
+				for(var i = 0; i < param.level; i++){
+					switch(i){
+						case 0:
+							_obj.value[i] = new Date().getFullYear();
+							break;
+						case 1:
+							_obj.value[i] = new Date().getMonth()+1;
+							break;
+						case 2:
+							_obj.value[i] = new Date().getDate();
+							break;
+					}
+				}
+			}
+			//value加上年月日
+			for(var i = 0; i < _obj.value.length; i++){
+				switch(i){
+					case 0:
+						_obj.value[i] += "年";
+						break;
+					case 1:
+						_obj.value[i] += "月";
+						break;
+					case 2:
+						_obj.value[i] += "日";
+						break;
 				}
 			}
 		}
@@ -43,10 +82,9 @@ var scrollSelect = {
 			$scrollTitle = $('<div class="scrollTitle"></div>'),
 			$scrollContent = $('<div class="scrollContent level'+ _obj.level +'"></div>'),
 			$cancel = $('<span class="cancel">取消</span>'),
-			$title = $('<span class="title">请选择</span>'),
 			$submit = $('<span class="submit">确定</span>');
 			//title结构
-			$scrollTitle.append($cancel,$title,$submit);
+			$scrollTitle.append($cancel,$submit);
 		//根据传入的值对三种索引进行初始赋值
 		for(var i=0; i<_obj.level; i++){
 			_obj.flag[i] = false;
@@ -63,8 +101,9 @@ var scrollSelect = {
 		$scrollSelect.append($scrollTitle,$scrollContent)
 		$('body').append($scrollSelect)
 		
-		//开始计算尺寸
-		_obj.height = _obj.liList[0][0].height();
+		//计算获取一个li的正常高度[全局可能都用到这个]
+		_obj.height = _obj.liList[0][1].offset().top - _obj.liList[0][0].offset().top;
+		//高度以及样式初始化
 		for(var i=0; i<_obj.level; i++){
 			_obj.top.push( (2-_obj.index[i])*_obj.height );
 			//初始化高度样式
@@ -120,8 +159,11 @@ var scrollSelect = {
 		$(document).on(goTouchEnd,function(e){
 			for(var i=0; i< _obj.level; i++){
 				if(_obj.flag[i]){
+					//将开关关闭
 					_obj.flag[i] = false;
+					//重新计算top值-->根据初始Y轴索引来
 					_obj.top[i] = _obj.yAxis[i][_obj.index[i]];
+					//重新赋值ul的高度
 					_obj.ulList[i].css('top',_obj.top[i])
 					//判断索引是否变化再触发数据更新
 					if(_obj.realIdx[i] !== _obj.index[i]){
@@ -143,24 +185,28 @@ var scrollSelect = {
 			//根据类型不同，返回的数据也可能不同
 			var str ='';
 			if(param.type === 'address'){
+				//遍历input并赋值
 				$(param.elArr).each(function(index){
 					str += _obj.value[index];
 					$(this).val(_obj.value[index]);
 				})
-//				$(param.el).html(str).removeClass('gray');
-				
 			}else if(param.type === 'calendar'){
+				//组织数据
 				for(var i = 0; i < _obj.value.length; i++){
+					//如果需要返回2017-07-08这类月和日带0的侧显示下这一行
+					//if(parseInt(_obj.value[i])< 10 ) _obj.value[i] = '0'+ _obj.value[i] ;
 					str += _obj.value[i];
 				}
-//				$(param.el).html(str).removeClass('gray');
-				$(param.elArr).val(str.replace(/[年月日]/g,'-').substring(0,str.length-1));
+				//为input赋值
+				$(param.elArr).val(str.replace(/[年月日]/g,'-').substring(0,str.length-1)).removeClass('gray');
 			}
 			//清空对象相关数据
 			_obj.resetAll();
 			$scrollSelect.remove();
 		})
 	},
+	
+	//清空所有涉及到的变量
 	resetAll:function(){
 		_obj.tempIdx = [];
 		_obj.realIdx = [];
@@ -212,7 +258,7 @@ var scrollSelect = {
 		}
 		_obj.ulList[i].html(_obj.liList[i]);
 	},
-	//添加数据
+	//添加dataArr[地址还需向dataObj添加]数据
 	setData : function(i){
 		if(_obj.type == 'address'){
 			switch(i){
@@ -244,7 +290,7 @@ var scrollSelect = {
 		}
 	},
 	
-	//设置日历数据
+	//设置日历数据--年
 	setYear:function(start){
 		var getDate = new Date();
 		var thisYear = getDate.getFullYear();
@@ -255,6 +301,7 @@ var scrollSelect = {
 		}
 		return arr;
 	},
+	//设置日历数据--月
 	setMonth:function(){
 		var arr = [];
 		for(var i = 1; i <= 12 ;i++){
@@ -262,6 +309,7 @@ var scrollSelect = {
 		}
 		return arr;
 	},
+	//设置日历数据--日
 	setDay:function(){
 		var isr = parseInt(_obj.dataArr[0][_obj.index[0]])%4 ? 0 : 1;
 		var dayarr = [31,28+isr,31,30,31,30,31,30,31,30,31,30];
@@ -286,21 +334,27 @@ var scrollSelect = {
 				_obj.changeCls(i);
 			}
 		}else if(_obj.type == 'calendar' && _obj.level == 3){
+			//如上判断，只有日期 level有三级的时候才会重置(只有年月涉及“日”时才会影响原始值)
 			//检查日期是否合法[重新获取的日期与当前日期长度是否一致]
-			_obj.setData(2);
-			if(_obj.dataArr[2].length !== _obj.liList[2].length){
-				if(_obj.index[2] > _obj.dataArr[2].length-1){
-					_obj.index[2] = _obj.realIdx[2] = _obj.tempIdx[2] = _obj.dataArr[2].length-1;
+			var _idx = 2;
+			_obj.setData(_idx);
+			//判断如果data数组与list数组的个数不一致(说明“日数”长度有改动，可能从31日变为30日或其它)
+			if(_obj.dataArr[_idx].length !== _obj.liList[_idx].length){
+				//如果当前索引大于数据（例索引在31号，而实际只有28天的话），将索引调到数据最未值的索引
+				if(_obj.index[_idx] > _obj.dataArr[_idx].length-1){
+					_obj.index[_idx] = _obj.realIdx[_idx] = _obj.tempIdx[_idx] = _obj.dataArr[_idx].length-1;
 				}
-				_obj.top[2] = (2-_obj.index[2])*_obj.height;
-				_obj.setLilist(2);
-				_obj.changeCls(2);
+				//其它重值的
+				_obj.top[_idx] = (2-_obj.index[_idx])*_obj.height;
+				_obj.setLilist(_idx);
+				_obj.changeCls(_idx);
 			}
 		}
 		_obj.setVal();
 	},
+	
+	//将最新的数据值填到value中
 	setVal:function(){
-		//循环将最新的数据值填到value中
 		for(var j =0; j< _obj.level; j++){
 			if(_obj.liList[j][_obj.index[j]] === undefined){
 				_obj.value[j] = '无'
@@ -325,43 +379,31 @@ var scrollSelect = {
 				num = i;
 			}
 		}
-		//如果传递的字符在数组中找不到，则返回0
+		//如果传递的字符在数组中找不到，则返回0[例如传浙江省杭州市无]
 		num = num===undefined?0:num;
 		return num;
 	},
 	
 	//设置日历索引
 	setDateIndex : function(i,arr){
-		//防止传进来的区没有字符，或者字符为空时，索引默认设为0
-		if((_obj.value[i] === '' || _obj.value[i] === undefined)){
-			switch(i){
-				case 0:
-					_obj.value[i] = new Date().getFullYear();
-					break;
-				case 1:
-					_obj.value[i] = new Date().getMonth()+1;
-					break;
-				case 2:
-					_obj.value[i] = new Date().getDate();
-					break;
-			}
-		}
+		//获取索引
 		var thisVal = _obj.getDateIndex(i,_obj.value[i],arr);
+		//索引赋值
 		_obj.realIdx[i] = _obj.index[i] = _obj.tempIdx[i] = thisVal;
-		_obj.value[i] = _obj.dataArr[i][_obj.index[i]];
 	},
 	//获取日历索引
 	getDateIndex:function(i,str,arr){
 		var num;
 		for(var i = 0; i < arr.length; i++){
-			if( parseInt(arr[i]) == str){
+			if( parseInt(arr[i]) == parseInt(str)){
 				num = i;
 			}
 		}
-		//如果传递的字符在数组中找不到，则返回0 [日历数组不包含数据的情况应该较少或不存在]
+		//如果传递的字符在数组中找不到，则返回0[例如传2016-15-10]
 		num = num===undefined?0:num;
 		return num;
 	},
+	
 	//修改样式（针对active,wait两个）
 	changeCls : function(i){
 		//更新Y轴值
