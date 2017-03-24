@@ -105,9 +105,10 @@ var scrollSelect = {
 		_obj.height = _obj.liList[0][1].offset().top - _obj.liList[0][0].offset().top;
 		//高度以及样式初始化
 		for(var i=0; i<_obj.level; i++){
-			_obj.top.push( (2-_obj.index[i])*_obj.height );
+			_obj.top[i] = (2-_obj.index[i])*_obj.height;
+			_obj.scroll[i] = _obj.top[i];
 			//初始化高度样式
-			_obj.changeCls(i);
+			_obj.resetCls(i);
 		}
 			
 		//判断是否拥有移动端某个touch事件[再自定义事件赋值某端的相应事件]
@@ -139,18 +140,18 @@ var scrollSelect = {
 						//重新计算_obj.index索引[滚动中]
 						_obj.index[i] = Math.abs( Math.floor((_obj.scroll[i]-_obj.height*2)/_obj.height+0.5) );
 						//判断当在一个距离中心相对距离内[模拟贴近]
+						_obj.ulList[i].css('top',_obj.scroll[i]);
 						if(_obj.scroll[i] >= _obj.yAxis[i][_obj.index[i]]-_obj.height*0.125 && _obj.scroll[i] <= _obj.yAxis[i][_obj.index[i]] + _obj.height*0.125){
 							_obj.ulList[i].css('top',_obj.yAxis[i][_obj.index[i]]);
-						}else{
-							_obj.ulList[i].css('top',_obj.scroll[i]);
 						}
 						//添加active秘wait样式
 						if(_obj.tempIdx[i] !== _obj.index[i]){
 							//修改样式
-							_obj.changeCls(i);
+							_obj.scrollCls(i);
 						}
 						_obj.tempIdx[i] = _obj.index[i];
 					}
+					
 				}
 			}
 		})//OK
@@ -331,7 +332,7 @@ var scrollSelect = {
 				_obj.top[i] = (2-_obj.index[i])*_obj.height;
 				_obj.setData(i);
 				_obj.setLilist(i);
-				_obj.changeCls(i);
+				_obj.resetCls(i);
 			}
 		}else if(_obj.type == 'calendar' && _obj.level == 3){
 			//如上判断，只有日期 level有三级的时候才会重置(只有年月涉及“日”时才会影响原始值)
@@ -347,7 +348,7 @@ var scrollSelect = {
 				//其它重值的
 				_obj.top[_idx] = (2-_obj.index[_idx])*_obj.height;
 				_obj.setLilist(_idx);
-				_obj.changeCls(_idx);
+				_obj.resetCls(_idx);
 			}
 		}
 		_obj.setVal();
@@ -404,18 +405,33 @@ var scrollSelect = {
 		return num;
 	},
 	
-	//修改样式（针对active,wait两个）
-	changeCls : function(i){
+	//初始化时使用的样式（包括记录Y轴）
+	resetCls:function(i){
 		//更新Y轴值
 		_obj.yAxis[i] = _obj.siteArr( _obj.dataArr[i].length , _obj.height );
+		_obj.changeCls(i);
+	},
+	//滚动时的样式控制
+	scrollCls:function(i,scroll){
+		_obj.changeCls(i);
+		//设置0.1秒后，如果当前索引未变化，则将ul滚动的高调到正中位置[针对有些手势滑得过快]
+		var tempNum = _obj.index[i];
+		var tempScroll = _obj.scroll[i];
+		setTimeout(function(){
+			if(tempNum == _obj.index[i] && tempScroll !== _obj.scroll[i]){
+				_obj.ulList[i].animate({'top':_obj.yAxis[i][_obj.index[i]]},100);
+				_obj.tempIdx[i] = _obj.index[i];
+			}
+		},100)
+	},
+	//修改样式（针对active,wait两个）
+	changeCls : function(i){
 		//ul的样式
-		_obj.ulList[i].css('top',_obj.top[i]);
+		_obj.ulList[i].css('top',_obj.scroll[i]);
 		//删除旧的样式
 		$(_obj.ulList[i]).find('.active , .wait').removeAttr('class');
-		//添加新的样式[如果索引存在]
-		if(_obj.liList[i][_obj.index[i]] !== undefined){
-			_obj.liList[i][_obj.index[i]].addClass('active');
-		}
+		//添加新的样式
+		_obj.liList[i][_obj.index[i]].addClass('active');
 		//如果索引+1存在
 		if(_obj.liList[i][_obj.index[i]+1] !== undefined){
 			_obj.liList[i][_obj.index[i]+1].addClass('wait');
