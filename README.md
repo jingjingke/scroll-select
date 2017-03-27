@@ -4,13 +4,13 @@
 
 线上预览：[https://jingjingke.github.io/scroll-select/](https://jingjingke.github.io/scroll-select/)
 
-
-##目录结构
+## 目录结构 ##
 
 ```pre
 
 ├── css
 │   ├── _media.scss          // 媒体查询(rem匹配)
+│   ├── _common.scss         // 随便写的通用样式
 │   ├── _scrollSelect.scss   // 滚动效果主体样式
 │   ├── style.css            // 生成css
 │   └── style.scss           // 样式入口
@@ -24,7 +24,7 @@
 
 ```
 
-##说明
+## 说明 ##
 
 目前只能调用的方法：
 ```js
@@ -34,13 +34,15 @@ scrollSelect.go()
 ```js
 data	//[json]只省市区才需要传入data
 level   //[number](必需)联动等级（目前有1、2、3级）
-elArr   //[str](必需)传入表单的选择器名如#div或.div，用于获取默认值以及确定后将值添入
 type    //[str](必需)当前只支持省市区地址（address）和日期（calendar）
+
+elArr   //[str](必需)传入表单的选择器名如#div或.div，用于获取默认值以及确定后将值添入
 el      //[str]这个按需来传非表单选择器，用于将默认值以某种格式添入
 ```
 
 
-##示例
+## 示例 ##
+
 （1）调用三级联动省市区选择，如果只需要省市则level改为2即可
 ```js
 $('.form_list1').on('click',function(){
@@ -64,3 +66,6 @@ $('.form_list3').on('click',function(){
     })
 })
 ```
+
+## 效果图 ##
+![scroll效果](http://www.jingjingke.com/uploads/allimg/170327/1-1F32G146040-L.gif)
