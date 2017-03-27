@@ -433,7 +433,9 @@ var scrollSelect = {
 		//删除旧的样式
 		$(_obj.ulList[i]).find('.active , .wait').removeAttr('class');
 		//添加新的样式
-		_obj.liList[i][_obj.index[i]].addClass('active');
+		if(_obj.liList[i][_obj.index[i]] !== undefined){
+			_obj.liList[i][_obj.index[i]].addClass('active');
+		}
 		//如果索引+1存在
 		if(_obj.liList[i][_obj.index[i]+1] !== undefined){
 			_obj.liList[i][_obj.index[i]+1].addClass('wait');
