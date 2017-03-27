@@ -313,7 +313,7 @@ var scrollSelect = {
 	//设置日历数据--日
 	setDay:function(){
 		var isr = parseInt(_obj.dataArr[0][_obj.index[0]])%4 ? 0 : 1;
-		var dayarr = [31,28+isr,31,30,31,30,31,30,31,30,31,30];
+		var dayarr = [31,28+isr,31,30,31,30,31,31,30,31,30,31];
 		var arr = [];
 		
 		for(var i=1;i <= dayarr[parseInt(_obj.dataArr[1][_obj.index[1]])-1] ; i++){
@@ -330,6 +330,7 @@ var scrollSelect = {
 			for(var i = num; i < _obj.level; i++){
 				_obj.index[i] = _obj.realIdx[i] = _obj.tempIdx[i] = 0;
 				_obj.top[i] = (2-_obj.index[i])*_obj.height;
+				_obj.scroll[i] = _obj.top[i];
 				_obj.setData(i);
 				_obj.setLilist(i);
 				_obj.resetCls(i);
@@ -347,6 +348,7 @@ var scrollSelect = {
 				}
 				//其它重值的
 				_obj.top[_idx] = (2-_obj.index[_idx])*_obj.height;
+				_obj.scroll[_idx] = _obj.top[_idx];
 				_obj.setLilist(_idx);
 				_obj.resetCls(_idx);
 			}
@@ -409,7 +411,7 @@ var scrollSelect = {
 	resetCls:function(i){
 		//更新Y轴值
 		_obj.yAxis[i] = _obj.siteArr( _obj.dataArr[i].length , _obj.height );
-		_obj.changeCls(i);
+		_obj.scrollCls(i);
 	},
 	//滚动时的样式控制
 	scrollCls:function(i,scroll){
