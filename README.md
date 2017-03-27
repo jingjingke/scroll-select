@@ -7,7 +7,7 @@
 效果预览：[https://jingjingke.github.io/scroll-select/](https://jingjingke.github.io/scroll-select/)
 
 
-##目录结构
+## 目录结构 ##
 
 ```pre
 
@@ -27,7 +27,7 @@
 
 ```
 
-##说明
+## 说明 ##
 
 目前只能调用的方法：
 ```js
@@ -41,7 +41,7 @@ type    //[str](必需)当前只支持省市区地址（address调整中还不�
 el      //[str][有区别]传递为Id选择器名
 ```
 
-##示例
+## 示例 ##
 日期
 ```js
 document.getElementById('input3').addEventListener('click',function(e){
@@ -65,3 +65,6 @@ document.getElementById('input1').addEventListener('click',function(){
     })
 })
 ```
+
+## 效果图 ##
+![scroll效果](http://www.jingjingke.com/uploads/allimg/170327/1-1F32G146040-L.gif)
