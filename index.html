@@ -10,50 +10,65 @@
 		<div class="warp">
 			<!-- 省市区 -->
 			<div class="form_list" id="input1">
-				<label>省</label><input type="text" value="" readonly="readonly"/>
-				<label>市</label><input type="text" value="" readonly="readonly" />
-				<label>区</label><input type="text" value="" readonly="readonly" />
+				<label>省</label><input type="text" readonly="readonly" value="浙江省"/>
+				<label>市</label><input type="text" readonly="readonly" value="杭州市" />
+				<label>区</label><input type="text" readonly="readonly" value="余杭区" />
 			</div>
 			<!-- 省市 -->
 			<div class="form_list" id="input2">
 				<label>省</label><input type="text" value="" readonly="readonly"/>
 				<label>市</label><input type="text" value="" readonly="readonly" />
 			</div>
-			<!-- 日期 -->
+			<!-- 日期有值 -->
 			<div class="form_list" id="input3">
 				<label>入住日期</label>
-				<input type="text" readonly="readonly" value="2017-05-10" />
+				<input type="text" readonly="readonly" value="2017-5-10" />
+			</div>
+			<!-- 日期无值 -->
+			<div class="form_list" id="input4">
+				<label>入住日期</label>
+				<input type="text" readonly="readonly" value="" />
 			</div>
 		</div>
+		
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
 		<script src="js/scroll-select.js"></script>
 		<script>
 			//省市区联动
-//			$('.form_list1').on('click',function(){
-//				$.getJSON("./data/city.json",function(result){
-//				   scrollSelect.go({
-//				   		data:result,
-//				   		level:3,
-//				   		elArr:'.select1',
-//				   		type:'address'
-//				   })
-//				});
-//			})
-//			//省市联动
-//			$('.form_list2').on('click',function(){
-//				$.getJSON("./data/city.json",function(result){
-//				   scrollSelect.go({
-//				   		data:result,
-//				   		level:2,
-//				   		elArr:'.select2',
-//				   		type:'address'
-//				   })
-//				});
-//			})
-			//日期
-			document.getElementById('input3').addEventListener('click',function(e){
+			document.getElementById('input1').addEventListener('click',function(){
+				$.getJSON("./data/city.json",function(result){
+				   scrollSelect.go({
+				   		data:result,
+				   		level:3,
+				   		el:'input1',
+				   		type:'address'
+				   })
+				})
+			})
+			//省市联动
+			document.getElementById('input2').addEventListener('click',function(){
+				$.getJSON("./data/city.json",function(result){
+				   scrollSelect.go({
+				   		data:result,
+				   		level:2,
+				   		el:'input2',
+				   		type:'address'
+				   })
+				})
+			})
+			//日期-有值
+			document.getElementById('input3').addEventListener('click',function(){
 				scrollSelect.go({
 				 	level:3,
 				   	el:'input3',
+				   	type:'calendar'
+				})
+			})
+			//日期-无值
+			document.getElementById('input4').addEventListener('click',function(){
+				scrollSelect.go({
+				 	level:3,
+				   	el:'input4',
 				   	type:'calendar'
 				})
 			})

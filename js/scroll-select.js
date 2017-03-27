@@ -27,21 +27,24 @@ var scrollSelect = {
 		//param.data -- 传入数据json[可选(若使用日历则不需data,而使用内置的)]
 		//param.level -- 传入几联(省市区为三联，日期为二联或三联);
 		//param.type -- 传入的类型（暂时为省市区联动[address]和日历[calendar]）
+		//param.el -- 传入的id选择器
+		
 		_obj = this;
 		_obj.level = param.level;
 		_obj.type = param.type;
-		_obj.ipt = document.getElementById(param.el).getElementsByTagName('input')[0];
-		
 		
 		if(param.type === 'address'){
 			//如果传递进来的是地址（type=address,必须传data）
 			 _obj.data = param.data;
-			 //从传递的el选择器中获取默认值
-			$(param.elArr).each(function(index){
-				_obj.value[index] = $(this).val();
-			});
-
+			//地址获取input数组
+			_obj.ipt = document.getElementById(param.el).getElementsByTagName('input');
+			 //从input数组获取默认值
+			 for(var i=0; i < _obj.ipt.length; i++){
+			 	_obj.value[i] = _obj.ipt[i].value;
+			 }
 		}else if(param.type === 'calendar'){
+			//日历只获取一个input
+			_obj.ipt = document.getElementById(param.el).getElementsByTagName('input')[0];
 			//calendar只接收一个指定的input
 			var myVal = _obj.ipt.value;
 			//如果level不为0，且传入的input值不为空
@@ -166,10 +169,9 @@ var scrollSelect = {
 						//重新计算_obj.index索引[滚动中]
 						_obj.index[i] = Math.abs( Math.floor((_obj.scroll[i]-_obj.height*2)/_obj.height+0.5) );
 						//判断当在一个距离中心相对距离内[模拟贴近]
+						_obj.ulList[i].style.top = _obj.scroll[i]+'px';
 						if(_obj.scroll[i] >= _obj.yAxis[i][_obj.index[i]]-_obj.height*0.125 && _obj.scroll[i] <= _obj.yAxis[i][_obj.index[i]] + _obj.height*0.125){
 							_obj.ulList[i].style.top = _obj.yAxis[i][_obj.index[i]]+'px';
-						}else{
-							_obj.ulList[i].style.top = _obj.scroll[i]+'px';
 						}
 						//添加active秘wait样式
 						if(_obj.tempIdx[i] !== _obj.index[i]){
@@ -209,10 +211,10 @@ var scrollSelect = {
 			//根据类型不同，返回的数据也可能不同
 			var str ='';
 			if(param.type === 'address'){
-				$(param.elArr).each(function(index){
-					str += _obj.value[index];
-					$(this).val(_obj.value[index]);
-				})
+				//循环赋值
+				for(var i=0; i<_obj.ipt.length; i++){
+					_obj.ipt[i].value = _obj.value[i];
+				}
 			}else if(param.type === 'calendar'){
 				for(var i = 0; i < _obj.value.length; i++){
 					//如果需要返回2017-07-08这类月和日带0的侧显示下这一行
@@ -447,7 +449,9 @@ var scrollSelect = {
 			}
 		}
 		//添加新的样式
-		_obj.liList[i][_obj.index[i]].setAttribute('class','active');
+		if(_obj.liList[i][_obj.index[i]] !== undefined){
+			_obj.liList[i][_obj.index[i]].setAttribute('class','active');
+		}
 		//如果索引+1存在
 		if(_obj.liList[i][_obj.index[i]+1] !== undefined){
 			_obj.liList[i][_obj.index[i]+1].setAttribute('class','wait');
