@@ -42,12 +42,40 @@ var scrollSelect = {
 			});
 
 		}else if(param.type === 'calendar'){
-			_obj.value[0] = _obj.ipt.value;
-			//如果传入了一个日期值：例2017-03-03
-			if(_obj.value.length == 1 && param.level != 0 && _obj.value[0] !== ''){
-				var matchArr = _obj.value[0].match(/[0-9]{1,4}/g);
-				 for(var i =0; i<matchArr.length; i++){
-					_obj.value[i] = parseInt(matchArr[i]);
+			//calendar只接收一个指定的input
+			var myVal = _obj.ipt.value;
+			//如果level不为0，且传入的input值不为空
+			if( param.level != 0 && myVal !== ''){
+				//把日期的数字匹配出来存入_obj.value
+				_obj.value = myVal.match(/[0-9]{1,4}/g);
+			}else if(myVal === ''){
+				//如果input为空时，则使用当前日期
+				for(var i = 0; i < param.level; i++){
+					switch(i){
+						case 0:
+							_obj.value[i] = new Date().getFullYear();
+							break;
+						case 1:
+							_obj.value[i] = new Date().getMonth()+1;
+							break;
+						case 2:
+							_obj.value[i] = new Date().getDate();
+							break;
+					}
+				}
+			}
+			//value加上年月日
+			for(var i = 0; i < _obj.value.length; i++){
+				switch(i){
+					case 0:
+						_obj.value[i] += "年";
+						break;
+					case 1:
+						_obj.value[i] += "月";
+						break;
+					case 2:
+						_obj.value[i] += "日";
+						break;
 				}
 			}
 		}
@@ -65,10 +93,6 @@ var scrollSelect = {
 		var	$cancel = document.createElement('span');
 			$cancel.setAttribute('class','cancel');
 			$cancel.innerHTML='取消';
-		
-		var	$title = document.createElement('span');
-			$title.setAttribute('class','title');
-			$cancel.innerHTML='请选择';
 			
 		var	$submit = document.createElement('span');
 			$submit.setAttribute('class','submit');
@@ -76,7 +100,6 @@ var scrollSelect = {
 			
 			//title结构
 			$scrollTitle.appendChild($cancel)
-			$scrollTitle.appendChild($title)
 			$scrollTitle.appendChild($submit)
 			
 		//根据传入的值对三种索引进行初始赋值
@@ -97,13 +120,19 @@ var scrollSelect = {
 		$scrollSelect.appendChild($scrollContent);
 		document.body.appendChild($scrollSelect);
 		
-		//开始计算尺寸
-		_obj.height = _obj.liList[0][0].offsetHeight;
+		//开始计算尺寸[先获取所有尺寸，再取平均数作为通用的高度，尽可能减小高度误差]
+		var allLiHeight = 0;
+		for(var i=0; i < _obj.liList[0].length; i++){
+			allLiHeight += _obj.liList[0][i].offsetHeight;
+		}
+		_obj.height = allLiHeight/_obj.liList[0].length;
 		
+		//高度以及样式初始化
 		for(var i=0; i<_obj.level; i++){
-			_obj.top.push( (2-_obj.index[i])*_obj.height );
+			_obj.top[i] = (2-_obj.index[i])*_obj.height;
+			_obj.scroll[i] = _obj.top[i];
 			//初始化高度样式
-			_obj.changeCls(i);
+			_obj.resetCls(i);
 		}
 			
 		//判断是否拥有移动端某个touch事件[再自定义事件赋值某端的相应事件]
@@ -145,7 +174,7 @@ var scrollSelect = {
 						//添加active秘wait样式
 						if(_obj.tempIdx[i] !== _obj.index[i]){
 							//修改样式
-							_obj.changeCls(i);
+							_obj.scrollCls(i);
 						}
 						_obj.tempIdx[i] = _obj.index[i];
 					}
@@ -155,7 +184,6 @@ var scrollSelect = {
 		
 		//绑定事件--离开
 		document.addEventListener(goTouchEnd,function(e){
-//			e.preventDefault()
 			for(var i=0; i< _obj.level; i++){
 				if(_obj.flag[i]){
 					_obj.flag[i] = false;
@@ -171,13 +199,13 @@ var scrollSelect = {
 		})//OK
 		
 		//取消时将弹窗关闭
-		$cancel.addEventListener(goTouchStart,function(){
+		$cancel.addEventListener('click',function(){
 			_obj.resetAll();
 			document.getElementsByTagName('body')[0].removeChild($scrollSelect);
 		})
 		
 		//确认按钮将数据填充进来
-		$submit.addEventListener(goTouchStart,function(){
+		$submit.addEventListener('click',function(){
 			//根据类型不同，返回的数据也可能不同
 			var str ='';
 			if(param.type === 'address'){
@@ -187,7 +215,8 @@ var scrollSelect = {
 				})
 			}else if(param.type === 'calendar'){
 				for(var i = 0; i < _obj.value.length; i++){
-					if(parseInt(_obj.value[i]) < 10 ) _obj.value[i] = '0'+_obj.value[i];
+					//如果需要返回2017-07-08这类月和日带0的侧显示下这一行
+					//if(parseInt(_obj.value[i]) < 10 ) _obj.value[i] = '0'+_obj.value[i];
 					str += _obj.value[i];
 				}
 				_obj.ipt.value = str.replace(/[年月日]/g,'-').substring(0,str.length-1);
@@ -302,7 +331,7 @@ var scrollSelect = {
 	},
 	setDay:function(){
 		var isr = parseInt(_obj.dataArr[0][_obj.index[0]])%4 ? 0 : 1;
-		var dayarr = [31,28+isr,31,30,31,30,31,30,31,30,31,30];
+		var dayarr = [31,28+isr,31,30,31,30,31,31,30,31,30,31];
 		var arr = [];
 		
 		for(var i=1;i <= dayarr[parseInt(_obj.dataArr[1][_obj.index[1]])-1] ; i++){
@@ -321,7 +350,7 @@ var scrollSelect = {
 				_obj.top[i] = (2-_obj.index[i])*_obj.height;
 				_obj.setData(i);
 				_obj.setLilist(i);
-				_obj.changeCls(i);
+				_obj.resetCls(i);
 			}
 		}else if(_obj.type == 'calendar' && _obj.level == 3){
 			//检查日期是否合法[重新获取的日期与当前日期长度是否一致]
@@ -332,7 +361,7 @@ var scrollSelect = {
 				}
 				_obj.top[2] = (2-_obj.index[2])*_obj.height;
 				_obj.setLilist(2);
-				_obj.changeCls(2);
+				_obj.resetCls(2);
 			}
 		}
 		_obj.setVal();
@@ -370,29 +399,16 @@ var scrollSelect = {
 	
 	//设置日历索引
 	setDateIndex : function(i,arr){
-		//防止传进来的区没有字符，或者字符为空时，索引默认设为0
-		if((_obj.value[i] === '' || _obj.value[i] === undefined)){
-			switch(i){
-				case 0:
-					_obj.value[i] = new Date().getFullYear();
-					break;
-				case 1:
-					_obj.value[i] = new Date().getMonth()+1;
-					break;
-				case 2:
-					_obj.value[i] = new Date().getDate();
-					break;
-			}
-		}
+		//获取索引
 		var thisVal = _obj.getDateIndex(i,_obj.value[i],arr);
+		//索引赋值
 		_obj.realIdx[i] = _obj.index[i] = _obj.tempIdx[i] = thisVal;
-		_obj.value[i] = _obj.dataArr[i][_obj.index[i]];
 	},
 	//获取日历索引
 	getDateIndex:function(i,str,arr){
 		var num;
 		for(var i = 0; i < arr.length; i++){
-			if( parseInt(arr[i]) == str){
+			if( parseInt(arr[i]) == parseInt(str)){
 				num = i;
 			}
 		}
@@ -400,10 +416,28 @@ var scrollSelect = {
 		num = num===undefined?0:num;
 		return num;
 	},
-	//修改样式（针对active,wait两个）
-	changeCls : function(i){
+	
+	//初始化时使用的样式（包括记录Y轴）
+	resetCls : function(i){
 		//更新Y轴值
 		_obj.yAxis[i] = _obj.siteArr( _obj.dataArr[i].length , _obj.height );
+		_obj.scrollCls(i);
+	},
+	//滚动时的样式控制
+	scrollCls : function(i,scroll){
+		_obj.changeCls(i);
+		//设置0.1秒后，如果当前索引未变化，则将ul滚动的高调到正中位置[针对有些手势滑得过快]
+		var tempNum = _obj.index[i];
+		var tempScroll = _obj.scroll[i];
+		setTimeout(function(){
+			if(tempNum == _obj.index[i] && tempScroll !== _obj.scroll[i]){
+				_obj.ulList[i].style.top = _obj.yAxis[i][_obj.index[i]]+'px';
+				_obj.tempIdx[i] = _obj.index[i];
+			}
+		},100)
+	},
+	//修改样式（针对active,wait两个）
+	changeCls : function(i){
 		//ul的样式
 		_obj.ulList[i].style.top = _obj.top[i]+'px';
 		//删除旧的样式
@@ -412,10 +446,8 @@ var scrollSelect = {
 				_obj.liList[i][j].removeAttribute('class');
 			}
 		}
-		//添加新的样式[如果索引存在]
-		if(_obj.liList[i][_obj.index[i]] !== undefined){
-			_obj.liList[i][_obj.index[i]].setAttribute('class','active');
-		}
+		//添加新的样式
+		_obj.liList[i][_obj.index[i]].setAttribute('class','active');
 		//如果索引+1存在
 		if(_obj.liList[i][_obj.index[i]+1] !== undefined){
 			_obj.liList[i][_obj.index[i]+1].setAttribute('class','wait');
