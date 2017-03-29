@@ -35,7 +35,7 @@ var scrollSelect = {
 			 _obj.data = param.data;
 			 //从传递的el选择器中遍历获取默认值
 			$(param.elArr).each(function(index){
-				_obj.value[index] = $(this).val();
+				_obj.value[index] = $(this).val()!==''?$(this).val():'无';
 			});
 
 		}else if(param.type === 'calendar'){
@@ -372,7 +372,6 @@ var scrollSelect = {
 		//防止传进来的区没有字符，或者字符为空时，索引默认设为0
 		var thisVal = (_obj.value[i] === '' || _obj.value[i] === undefined) ? 0 : _obj.getAddressIndex(_obj.value[i],arr);
 		_obj.realIdx[i] = _obj.index[i] = _obj.tempIdx[i] = thisVal;
-		_obj.value[i] = _obj.dataArr[i][_obj.index[i]].address;
 	},
 	//获取索引（省市区联动数据用）
 	getAddressIndex : function(str,arr){
